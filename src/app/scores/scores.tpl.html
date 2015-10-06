@@ -1,0 +1,26 @@
+<table class="ui celled striped table">
+	<thead><tr>
+		<th>Pos</th>
+		<th>Team</th>
+		<th>Pld</th>
+		<th>W</th>
+		<th>D</th>
+		<th>L</th>
+		<th>GF</th>
+		<th>GA</th>
+		<th>GD</th>
+		<th>Pts</th>
+	</tr></thead>
+	<tbody> <tr ng-repeat="team in teams | orderBy:['-pts', 'gd', 'gf', 'name']" ng-class="{'red': $index > 16}")>
+		<td>{{$index + 1}}</th>
+		<td>{{team.name}}</th>
+		<td>{{team.pld}}</th>
+		<td>{{team.w}}</th>
+		<td>{{team.d}}</th>
+		<td>{{team.l}}</th>
+		<td>{{team.gf}}</th>
+		<td>{{team.ga}}</th>
+		<td>{{team.gd}}</th>
+		<td>{{team.pts}}</th>
+	</tbody>
+</table>

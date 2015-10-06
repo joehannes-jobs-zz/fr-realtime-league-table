@@ -1,0 +1,8 @@
+[
+	{
+		"stateName": "scores",
+		"urlPrefix": "/scores",
+		"type": "load",
+		"src": "app/scores/scores"
+	}
+]
