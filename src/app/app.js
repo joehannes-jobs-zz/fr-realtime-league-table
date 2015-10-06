@@ -24,7 +24,7 @@ appModule.config(function($locationProvider, $httpProvider, $urlRouterProvider, 
 
 angular.element(document).ready(function() {
 	return angular.bootstrap(document.body, [appModule.name], {
-		strictDi: true
+		strictDi: false
 	});
 });
 

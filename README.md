@@ -2,6 +2,11 @@
 
 _Realtime league table task_
 
+## The solution
+
+Just run 'gulp' in one terminal, in another one 'npm start' ... then navigate your browser to localhost:9000!!!
+(of course first clone the repo, n run 'npm i && jspm i')
+
 ## Introduction
 
 As part of your application to Football Radar, we would like you to complete a small task similar to the kind of thing you could end up working on here. The purpose of this task is to evaluate your skill in building effective user interfaces, integrating with a variety of upstream sources.

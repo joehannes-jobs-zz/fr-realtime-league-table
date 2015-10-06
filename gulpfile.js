@@ -1,9 +1,11 @@
 var gulp = require('gulp');
+var gulpJspm = require('gulp-jspm');
 var gulpHelpers = require('gulp-helpers');
 var taskMaker = gulpHelpers.taskMaker(gulp);
 var situation = gulpHelpers.situation();
 var _ = gulpHelpers.framework('_');
 var runSequence = gulpHelpers.framework('run-sequence');
+var sourcemaps = require('gulp-sourcemaps');
 
 var path = {
 	source: 'src/**/*.js',
@@ -76,18 +78,6 @@ var cacheBustConfig = {
 	]
 };
 
-var routeBundleConfig = {
-	baseURL: path.output,
-	main: 'app/app',
-	routes: routesSrc,
-	bundleThreshold: 0.6,
-	config: path.systemConfig,
-	sourceMaps: true,
-	minify: false,
-	dest: 'dist/app',
-	destJs: 'dist/app/app.js'
-};
-
 var babelCompilerOptions = {
 	modules: 'system'
 };
@@ -97,7 +87,6 @@ taskMaker.defineTask('clean', {taskName: 'clean-e2e', src: path.e2eOutput});
 taskMaker.defineTask('less', {taskName: 'less', src: path.less, dest: path.output});
 taskMaker.defineTask('less', {taskName: 'less-themes', src: path.themes, dest: path.themesOutput});
 taskMaker.defineTask('babel', {taskName: 'babel', src: [path.source, path.react], dest: path.output, ngAnnotate: true, compilerOptions: babelCompilerOptions});
-taskMaker.defineTask('babel', {taskName: 'babel-coffee', src: path.coffee, dest: path.output, coffee: true, ngAnnotate: true, compilerOptions: babelCompilerOptions});
 taskMaker.defineTask('babel', {taskName: 'babel-e2e', src: path.e2e, dest: path.e2eOutput, compilerOptions: {externalHelpers: false}, taskDeps: ['clean-e2e']});
 taskMaker.defineTask('ngHtml2Js', {taskName: 'html', src: path.templates, dest: path.output, compilerOptions: babelCompilerOptions});
 taskMaker.defineTask('copy', {taskName: 'systemConfig', src: path.systemConfig, dest: path.output});
@@ -111,10 +100,9 @@ taskMaker.defineTask('minify', {taskName: 'minify', src: path.minify, dest: path
 taskMaker.defineTask('jshint', {taskName: 'lint', src: path.source});
 taskMaker.defineTask('karma', {taskName: 'karma', configFile: path.karmaConfig});
 taskMaker.defineTask('browserSync', {taskName: 'serve', config: serverOptions, historyApiFallback: true});
-taskMaker.defineTask('routeBundler', {taskName: 'routeBundler', config: routeBundleConfig});
 
 gulp.task('compile', function(callback) {
-	return runSequence(['less', 'less-themes', 'html', 'babel', 'babel-coffee', 'json', 'assets'], callback);
+	return runSequence(['less', 'less-themes', 'html', 'babel', 'json', 'assets'], callback);
 });
 
 gulp.task('recompile', function(callback) {
@@ -125,9 +113,17 @@ gulp.task('test', function(callback) {
 	return runSequence('recompile', 'karma', callback);
 });
 
+gulp.task('bundle', function (app) {
+	gulp.src('app/app.js', { cwd: 'src'})
+	    .pipe(sourcemaps.init())
+	    .pipe(gulpJspm({selfExecutingBundle: true}))
+	    .pipe(sourcemaps.write('.'))
+	    .pipe(gulp.dest('../build/'));
+});
+
 gulp.task('run', function(callback) {
 	if (situation.isProduction()) {
-		return runSequence('recompile', 'routeBundler', 'cache-bust-index.html', 'htmlMinify-index.html', 'minify', 'serve', callback);
+		return runSequence('recompile', 'bundle', 'cache-bust-index.html', 'htmlMinify-index.html', 'minify', 'serve', callback);
 	} else if (situation.isDevelopment()) {
 		return runSequence('recompile', 'lint', 'index.html', 'serve', 'watch', callback);
 	}
